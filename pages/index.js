@@ -21,10 +21,12 @@ export default function IndexPage({ userID }) {
     <div>
       <h1>Minimal repro of VWO SDK with broken SSR</h1>
       <p>
-        Comment out the lines related to prefetching to get SSR to break.
+        Comment the lines related to prefetching to turn off SSR.
       </p>
       <p>
-        View this page's source to see SSR being broken.
+        Inspect this page's source to see SSR working (ie
+        view-source:http://localhost:3000/ and search for your configured
+        variation)
       </p>
 
       {variation === VWO_EXPERIMENT_CONTROL_VARIATION_KEY ? (
@@ -71,17 +73,12 @@ export async function getServerSideProps({ req }) {
 
   const queryClient = new QueryClient();
 
-  console.log('userID', userID);
-  
-  // SSR of VWO causes the app to crash with ECONNRESET,
-  // uncomment below to reproduce the crash
-  if (userID) {
-    await prefetchVWOExperiment({
-      queryClient,
-      campaignKey: VWO_EXPERIMENT_CAMPAIGN_KEY,
-      userID,
-    });
-  }
+  // SSR of VWO causes an ECONNRESET
+  await prefetchVWOExperiment({
+    queryClient,
+    campaignKey: VWO_EXPERIMENT_CAMPAIGN_KEY,
+    userID,
+  });
 
   return {
     props: {

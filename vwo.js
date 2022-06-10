@@ -24,9 +24,12 @@ export async function getVWOClient() {
 
 export async function getVWOExperiment({ campaignKey, userID }) {
   const client = await getVWOClient();
-  console.log(campaignKey, userID);
   const variation = client.activate(campaignKey, userID);
-  console.log(variation);
+
+  if (!variation) {
+    return null; // because nextjs SSR complains if undefined
+  }
+
   return variation;
 }
 
@@ -59,8 +62,6 @@ export async function fetchVWOExperiment({
 export function useVWOExperiment({ campaignKey, userID }) {
   // to run this experiment serverside, simply call prefetchVWOExperiment, read VWO_UUID_COOKIE_NAME cookie,
   // and pass through that cookie's value
-
-  console.log('use', userID)
 
   return useQuery(
     getQueryKey({ campaignKey, userID }),
